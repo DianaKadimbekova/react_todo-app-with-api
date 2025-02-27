@@ -118,20 +118,19 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           />
         </label>
         {isEditing ? (
-          <form onSubmit={handleSubmit}>
-            <input
-              data-cy="TodoTitleField"
-              type="text"
-              className="todo__title-field"
-              placeholder="Empty todo will be deleted"
-              value={newTitle}
-              onChange={e => setNewTitle(e.target.value)}
-              onBlur={handleBlur}
-              ref={inputRef}
-              onKeyUp={handleKeyUp}
-              onKeyDown={handleKeyDown}
-            />
-          </form>
+          <input
+            onSubmit={handleSubmit}
+            data-cy="TodoTitleField"
+            type="text"
+            className="todo__title-field"
+            placeholder="Empty todo will be deleted"
+            value={newTitle}
+            onChange={e => setNewTitle(e.target.value)}
+            onBlur={handleBlur}
+            ref={inputRef}
+            onKeyUp={handleKeyUp}
+            onKeyDown={handleKeyDown}
+          />
         ) : (
           <span data-cy="TodoTitle" className="todo__title">
             {title}
