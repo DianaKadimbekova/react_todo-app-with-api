@@ -63,11 +63,11 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     }
 
     try {
-      await handleUpdateTodo(todo, trimmedTitle);
       setIsEditing(false);
+      await handleUpdateTodo(todo, trimmedTitle);
     } catch (e) {
-      setError('Unable to update a todo');
       setIsEditing(true);
+      setError('Unable to update a todo');
     }
   };
 
@@ -126,7 +126,9 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             {title}
           </span>
         )}
-        {isEditing ? '' : (
+        {isEditing ? (
+          ''
+        ) : (
           <button
             type="button"
             className="todo__remove"
