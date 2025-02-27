@@ -30,6 +30,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   const { completed, title, id } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -48,31 +49,39 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       event.preventDefault();
     }
 
+    setIsSubmitting(true);
+
     const trimmedTitle = newTitle.trim();
 
     if (trimmedTitle === title) {
       setIsEditing(false);
+      setIsSubmitting(false);
 
       return;
     }
 
     if (!trimmedTitle) {
       handleDeleteTodo(id);
+      setIsSubmitting(false);
 
       return;
     }
 
     try {
-      setIsEditing(false);
       await handleUpdateTodo(todo, trimmedTitle);
+      setIsEditing(false);
     } catch (e) {
       setIsEditing(true);
       setError('Unable to update a todo');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleBlur = () => {
-    handleSubmit();
+    if (!isSubmitting) {
+      handleSubmit();
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
