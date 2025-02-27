@@ -72,6 +72,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       setIsEditing(false);
     } catch (e) {
       setIsEditing(true);
+      setNewTitle(trimmedTitle);
       setError('Unable to update a todo');
       if (inputRef.current) {
         inputRef.current.focus();

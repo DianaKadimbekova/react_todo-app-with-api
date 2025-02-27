@@ -204,6 +204,7 @@ export const App: React.FC<AppProp> = () => {
         prevTodos.map(t => (t.id === todo.id ? response : t)),
       );
     } catch (e) {
+      setIsUpdating(true);
       setError('Unable to update a todo');
     } finally {
       setIsUpdating(false);
