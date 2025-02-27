@@ -73,8 +73,9 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     } catch (e) {
       setIsEditing(true);
       setError('Unable to update a todo');
-    } finally {
-      setIsSubmitting(false);
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
     }
   };
 
