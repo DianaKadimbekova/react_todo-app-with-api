@@ -6,12 +6,12 @@ interface TodoItemProps {
   todo: Todo;
   handleDeleteTodo: (id: number) => void;
   isDeleting: boolean;
-  isUpdating: boolean;
-  status: boolean;
+  isUpdating: number[];
+  status: number[];
   isToggleAll: boolean;
   loading?: boolean;
   handleStatusTodo: (todo: Todo) => void;
-  handleUpdateTodo: (todo: Todo, newTitle: string) => Promise<void>;
+  handleUpdateTodo: (todo: Todo, newTitle: string) => Promise<Todo | null>;
   setError: (error: string | null) => void;
 }
 
@@ -32,6 +32,9 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   const [newTitle, setNewTitle] = useState(title);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const updateTodo = isUpdating.includes(id);
+  const statusTodo = status.includes(id);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -67,16 +70,19 @@ export const TodoItem: React.FC<TodoItemProps> = ({
       return;
     }
 
-    try {
-      await handleUpdateTodo(todo, trimmedTitle);
+    const resp = await handleUpdateTodo(todo, trimmedTitle);
+
+    if (resp) {
       setIsEditing(false);
-    } catch (e) {
+    } else {
       setIsEditing(true);
       setNewTitle(trimmedTitle);
       setError('Unable to update a todo');
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, 0);
     }
   };
 
@@ -155,7 +161,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           data-cy="TodoLoader"
           className={classNames('modal overlay', {
             'is-active':
-              loading || isDeleting || isUpdating || status || isToggleAll,
+              loading || isDeleting || updateTodo || statusTodo || isToggleAll,
           })}
         >
           <div className="modal-background has-background-white-ter" />

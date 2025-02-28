@@ -9,10 +9,10 @@ interface TodoSectionProps {
   tempTodo: Todo | null;
   handleStatusTodo: (todo: Todo) => void;
   loading: boolean;
-  handleUpdateTodo: (todo: Todo, newTitle: string) => Promise<void>;
+  handleUpdateTodo: (todo: Todo, newTitle: string) => Promise<Todo | null>;
   setError: (error: string | null) => void;
-  isUpdating: boolean;
-  status: boolean;
+  isUpdating: number[];
+  status: number[];
   isToggleAll: boolean;
 }
 

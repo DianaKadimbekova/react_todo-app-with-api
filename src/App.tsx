@@ -35,8 +35,8 @@ export const App: React.FC<AppProp> = () => {
   const [deletingTodoId, setDeletingTodoId] = useState<number | null>(null);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
-  const [isUpdating, setIsUpdating] = useState<boolean>(false);
-  const [status, setStatus] = useState<boolean>(false);
+  const [isUpdating, setIsUpdating] = useState<number[]>([]);
+  const [status, setStatus] = useState<number[]>([]);
   const [isToggleAll, setIsToggleAll] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -125,7 +125,7 @@ export const App: React.FC<AppProp> = () => {
   };
 
   const handleStatusTodo = async (todo: Todo) => {
-    setStatus(true);
+    setStatus(prev => [...prev, todo.id]);
     try {
       const updatedTodo = await updateTodo({
         ...todo,
@@ -142,7 +142,7 @@ export const App: React.FC<AppProp> = () => {
     } catch (e) {
       setError('Unable to update a todo');
     } finally {
-      setStatus(false);
+      setStatus(prev => prev.filter(id => id !== todo.id));
     }
   };
 
@@ -187,10 +187,13 @@ export const App: React.FC<AppProp> = () => {
     }
   };
 
-  const handleUpdateTodo = async (todo: Todo, newTitle: string) => {
+  const handleUpdateTodo = async (
+    todo: Todo,
+    newTitle: string,
+  ): Promise<Todo | null> => {
     const trimmedTitle = newTitle.trim();
 
-    setIsUpdating(true);
+    setIsUpdating(prev => [...prev, todo.id]);
 
     try {
       const updatedTodo = {
@@ -203,11 +206,15 @@ export const App: React.FC<AppProp> = () => {
       setTodos(prevTodos =>
         prevTodos.map(t => (t.id === todo.id ? response : t)),
       );
+
+      return response;
     } catch (e) {
-      setIsUpdating(true);
+      setIsUpdating(prev => [...prev, todo.id]);
       setError('Unable to update a todo');
+
+      return null;
     } finally {
-      setIsUpdating(false);
+      setIsUpdating(prev => prev.filter(id => id !== todo.id));
     }
   };
 
