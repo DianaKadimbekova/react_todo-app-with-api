@@ -5,36 +5,29 @@ import classNames from 'classnames';
 interface TodoItemProps {
   todo: Todo;
   handleDeleteTodo: (id: number) => void;
-  isDeleting: boolean;
-  isUpdating: number[];
-  status: number[];
   isToggleAll: boolean;
   loading?: boolean;
   handleStatusTodo: (todo: Todo) => void;
   handleUpdateTodo: (todo: Todo, newTitle: string) => Promise<Todo | null>;
   setError: (error: string | null) => void;
+  processingIds: number[];
 }
 
 export const TodoItem: React.FC<TodoItemProps> = ({
   todo,
   handleDeleteTodo,
-  isDeleting,
   loading,
   handleStatusTodo,
   handleUpdateTodo,
   setError,
-  isUpdating,
-  status,
   isToggleAll,
+  processingIds,
 }) => {
   const { completed, title, id } = todo;
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(title);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const updateTodo = isUpdating.includes(id);
-  const statusTodo = status.includes(id);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -106,6 +99,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     }
   };
 
+  const isProcessing = processingIds.includes(todo.id);
+
   return (
     <div>
       <div
@@ -151,17 +146,16 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             data-cy="TodoDelete"
             onClick={() => handleDeleteTodo(todo.id)}
             style={{ display: isEditing ? 'none' : 'block' }}
-            disabled={isDeleting}
+            disabled={isProcessing}
           >
-            {isDeleting ? '' : '×'}
+            {isProcessing ? '' : '×'}
           </button>
         )}
 
         <div
           data-cy="TodoLoader"
           className={classNames('modal overlay', {
-            'is-active':
-              loading || isDeleting || updateTodo || statusTodo || isToggleAll,
+            'is-active': loading || isToggleAll || isProcessing,
           })}
         >
           <div className="modal-background has-background-white-ter" />

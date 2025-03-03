@@ -32,12 +32,10 @@ export const App: React.FC<AppProp> = () => {
   const [queryTodo, setQueryTodo] = useState<string>('');
   const [filter, setFilter] = useState<Filter>(Filter.All);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
-  const [deletingTodoId, setDeletingTodoId] = useState<number | null>(null);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
-
-  const [isUpdating, setIsUpdating] = useState<number[]>([]);
-  const [status, setStatus] = useState<number[]>([]);
   const [isToggleAll, setIsToggleAll] = useState<boolean>(false);
+
+  const [processingIds, setProcessingIds] = useState<number[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -79,14 +77,14 @@ export const App: React.FC<AppProp> = () => {
   };
 
   const handleDeleteTodo = async (todoId: number) => {
-    setDeletingTodoId(todoId);
+    setProcessingIds(prev => [...prev, todoId]);
     try {
       await deleteTodo(todoId);
       setTodos(todos.filter(todo => todo.id !== todoId));
     } catch (e) {
       setError('Unable to delete a todo');
     } finally {
-      setDeletingTodoId(null);
+      setProcessingIds(prev => prev.filter(id => id !== todoId));
       setIsInputDisabled(false);
 
       if (inputRef.current) {
@@ -125,7 +123,7 @@ export const App: React.FC<AppProp> = () => {
   };
 
   const handleStatusTodo = async (todo: Todo) => {
-    setStatus(prev => [...prev, todo.id]);
+    setProcessingIds(prev => [...prev, todo.id]);
     try {
       const updatedTodo = await updateTodo({
         ...todo,
@@ -142,7 +140,7 @@ export const App: React.FC<AppProp> = () => {
     } catch (e) {
       setError('Unable to update a todo');
     } finally {
-      setStatus(prev => prev.filter(id => id !== todo.id));
+      setProcessingIds(prev => prev.filter(id => id !== todo.id));
     }
   };
 
@@ -193,7 +191,7 @@ export const App: React.FC<AppProp> = () => {
   ): Promise<Todo | null> => {
     const trimmedTitle = newTitle.trim();
 
-    setIsUpdating(prev => [...prev, todo.id]);
+    setProcessingIds(prev => [...prev, todo.id]);
 
     try {
       const updatedTodo = {
@@ -209,12 +207,11 @@ export const App: React.FC<AppProp> = () => {
 
       return response;
     } catch (e) {
-      setIsUpdating(prev => [...prev, todo.id]);
       setError('Unable to update a todo');
 
       return null;
     } finally {
-      setIsUpdating(prev => prev.filter(id => id !== todo.id));
+      setProcessingIds(prev => prev.filter(id => id !== todo.id));
     }
   };
 
@@ -276,14 +273,12 @@ export const App: React.FC<AppProp> = () => {
             todos={filteredTodos}
             handleDeleteTodo={handleDeleteTodo}
             tempTodo={tempTodo}
-            deletingTodoId={deletingTodoId}
             handleStatusTodo={handleStatusTodo}
             loading={loading}
             handleUpdateTodo={handleUpdateTodo}
             setError={setError}
-            isUpdating={isUpdating}
-            status={status}
             isToggleAll={isToggleAll}
+            processingIds={processingIds}
           />
         )}
         {!noTodo && (
